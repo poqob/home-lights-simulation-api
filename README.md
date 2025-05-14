@@ -1,77 +1,77 @@
-# Ev Işık Simülasyonu
+# Home Light Simulation
 
-Bu uygulama, bir evin odalarının ışıklarını kontrol etmek için kullanılan bir web simülasyonudur. Flask kullanarak arka planda çalışır ve odaların ışıklarını açıp kapatmak için bir API sunar.
+This application is a web simulation used to control the lights of rooms in a house. It runs in the background using Flask and provides an API to turn the room lights on and off.
 
-## Özellikler
+## Features
 
-- 6 farklı oda (salon, oturma odası, mutfak, tuvalet, banyo, yatak odası)
-- Her oda için ışık kontrolü
-- Tüm ışıkları açma/kapatma düğmeleri
-- REST API ile ışık kontrolü
+- 6 different rooms (living room, sitting room, kitchen, toilet, bathroom, bedroom)
+- Light control for each room
+- Buttons to turn all lights on/off
+- Light control with REST API
 
-## Kurulum
+## Installation
 
-1. Gereksinimleri yükleyin:
+1. Install the requirements:
    ```
    pip install -r requirements.txt
    ```
 
-2. Uygulamayı çalıştırın:
+2. Run the application:
    ```
    python app.py
    ```
 
-3. Tarayıcınızdan `http://localhost:5004` adresine erişin
+3. Access from your browser at `http://localhost:5004`
 
-## API Kullanımı
+## API Usage
 
-Işıkları kontrol etmek için aşağıdaki API'yi kullanabilirsiniz:
+You can use the following API to control the lights:
 
 ```
 POST /api/lights
 Content-Type: application/json
 
 {
-  "room": "oda_adı",
+  "room": "room_name",
   "lights": true/false
 }
 ```
 
-Örnek:
+Example:
 ```
 {
-  "room": "tuvalet",
+  "room": "toilet",
   "lights": true
 }
 ```
 
-### Curl ile API Kullanım Örnekleri:
+### API Usage Examples with Curl:
 
-Tuvalete ait ışığı açmak için:
+To turn on the toilet light:
 ```bash
 curl -X POST http://localhost:5004/api/lights \
   -H "Content-Type: application/json" \
-  -d '{"room": "tuvalet", "lights": true}'
+  -d '{"room": "toilet", "lights": true}'
 ```
 
-Salona ait ışığı kapatmak için:
+To turn off the living room light:
 ```bash
 curl -X POST http://localhost:5004/api/lights \
   -H "Content-Type: application/json" \
-  -d '{"room": "salon", "lights": false}'
+  -d '{"room": "living room", "lights": false}'
 ```
 
-## Tüm oda durumlarını almak için:
+## To get all room states:
 
 ```
 GET /api/get_states
 ```
 
-Curl ile tüm oda durumlarını almak için:
+To get all room states using curl:
 ```bash
 curl -X GET http://localhost:5004/api/get_states
 ```
 
-## Gerçek Zamanlı Güncelleme
+## Real-Time Updates
 
-Bu uygulama WebSocket (socket.io) kullanarak API üzerinden yapılan değişiklikleri anlık olarak web arayüzünde gösterir. API ile yapılan her güncelleme, sayfayı yenilemeye gerek kalmadan otomatik olarak web arayüzünde güncellenir.
+This application uses WebSocket (socket.io) to show changes made via the API in real-time on the web interface. Each update made via the API is automatically reflected on the web interface without the need to refresh the page.

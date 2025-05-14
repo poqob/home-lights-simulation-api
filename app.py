@@ -9,22 +9,22 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Initialize the room lights state
 rooms = {
-    "salon": False,
-    "oturma_odasi": False,
-    "mutfak": False,
-    "tuvalet": False,
-    "banyo": False,
-    "yatak_odasi": False
+    "living_room": False,
+    "sitting_room": False,
+    "kitchen": False,
+    "toilet": False,
+    "bathroom": False,
+    "bedroom": False
 }
 
 # Room name mapping for display purposes
 room_display_names = {
-    "salon": "Salon",
-    "oturma_odasi": "Oturma Odası",
-    "mutfak": "Mutfak",
-    "tuvalet": "Tuvalet",
-    "banyo": "Banyo",
-    "yatak_odasi": "Yatak Odası"
+    "living_room": "Living Room",
+    "sitting_room": "Sitting Room",
+    "kitchen": "Kitchen",
+    "toilet": "Toilet",
+    "bathroom": "Bathroom",
+    "bedroom": "Bedroom"
 }
 
 @app.route('/')
@@ -34,11 +34,10 @@ def index():
 @app.route('/api/lights', methods=['POST'])
 def update_lights():
     data = request.json
-    
+    print(f"Received data: {data}")
     # Get room and light state from request
     room = data.get('room', '').lower().replace(' ', '_')
     light_state = data.get('lights', False)
-    
     # Update room state if it exists
     if room in rooms:
         rooms[room] = light_state

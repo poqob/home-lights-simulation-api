@@ -93,38 +93,38 @@
 </head>
 <body>
     <div class="container">
-        <h1>Ev Işık Simülasyonu</h1>
+        <h1>Home Light Simulation</h1>
         
         <div class="house">
-            <div id="salon" class="room" data-room="salon">
-                <div class="room-name">{{ room_display_names['salon'] }}</div>
-                <div class="light-status">Işık: Kapalı</div>
+            <div id="living_room" class="room" data-room="living_room">
+                <div class="room-name">{{ room_display_names['living_room'] }}</div>
+                <div class="light-status">Light: Off</div>
             </div>
-            <div id="mutfak" class="room" data-room="mutfak">
-                <div class="room-name">{{ room_display_names['mutfak'] }}</div>
-                <div class="light-status">Işık: Kapalı</div>
+            <div id="kitchen" class="room" data-room="kitchen">
+                <div class="room-name">{{ room_display_names['kitchen'] }}</div>
+                <div class="light-status">Light: Off</div>
             </div>
-            <div id="yatak_odasi" class="room" data-room="yatak_odasi">
-                <div class="room-name">{{ room_display_names['yatak_odasi'] }}</div>
-                <div class="light-status">Işık: Kapalı</div>
+            <div id="bedroom" class="room" data-room="bedroom">
+                <div class="room-name">{{ room_display_names['bedroom'] }}</div>
+                <div class="light-status">Light: Off</div>
             </div>
-            <div id="oturma_odasi" class="room" data-room="oturma_odasi">
-                <div class="room-name">{{ room_display_names['oturma_odasi'] }}</div>
-                <div class="light-status">Işık: Kapalı</div>
+            <div id="sitting_room" class="room" data-room="sitting_room">
+                <div class="room-name">{{ room_display_names['sitting_room'] }}</div>
+                <div class="light-status">Light: Off</div>
             </div>
-            <div id="tuvalet" class="room" data-room="tuvalet">
-                <div class="room-name">{{ room_display_names['tuvalet'] }}</div>
-                <div class="light-status">Işık: Kapalı</div>
+            <div id="toilet" class="room" data-room="toilet">
+                <div class="room-name">{{ room_display_names['toilet'] }}</div>
+                <div class="light-status">Light: Off</div>
             </div>
-            <div id="banyo" class="room" data-room="banyo">
-                <div class="room-name">{{ room_display_names['banyo'] }}</div>
-                <div class="light-status">Işık: Kapalı</div>
+            <div id="bathroom" class="room" data-room="bathroom">
+                <div class="room-name">{{ room_display_names['bathroom'] }}</div>
+                <div class="light-status">Light: Off</div>
             </div>
         </div>
         
         <div class="controls">
-            <button id="all-on">Tüm Işıkları Aç</button>
-            <button id="all-off">Tüm Işıkları Kapat</button>
+            <button id="all-on">Turn All Lights On</button>
+            <button id="all-off">Turn All Lights Off</button>
         </div>
         
         <div id="status"></div>
@@ -139,7 +139,7 @@
             socket.on('light_state_change', function(data) {
                 console.log('Received light state change:', data);
                 updateRoomUI(data.room, data.lights);
-                showStatus(`${data.room.replace('_', ' ')} ışığı ${data.lights ? 'açıldı' : 'kapatıldı'}.`, 'success');
+                showStatus(`${data.room.replace('_', ' ')} light ${data.lights ? 'turned on' : 'turned off'}.`, 'success');
             });
             
             // Initialize rooms based on server state
@@ -179,19 +179,19 @@
                 .then(data => {
                     if (data.success) {
                         updateRoomUI(room, state);
-                        showStatus(`${room.replace('_', ' ')} ışığı ${state ? 'açıldı' : 'kapatıldı'}.`, 'success');
+                        showStatus(`${room.replace('_', ' ')} light ${state ? 'turned on' : 'turned off'}.`, 'success');
                     } else {
-                        showStatus('Hata: ' + data.error, 'error');
+                        showStatus('Error: ' + data.error, 'error');
                     }
                 })
                 .catch(error => {
-                    showStatus('Bir hata oluştu: ' + error, 'error');
+                    showStatus('An error occurred: ' + error, 'error');
                 });
             }
             
             // Function to set all lights
             function setAllLights(state) {
-                const rooms = ['salon', 'oturma_odasi', 'mutfak', 'tuvalet', 'banyo', 'yatak_odasi'];
+                const rooms = ['living_room', 'sitting_room', 'kitchen', 'toilet', 'bathroom', 'bedroom'];
                 
                 Promise.all(rooms.map(room => {
                     return fetch('/api/lights', {
@@ -207,10 +207,10 @@
                 }))
                 .then(() => {
                     updateAllRooms();
-                    showStatus(`Tüm ışıklar ${state ? 'açıldı' : 'kapatıldı'}.`, 'success');
+                    showStatus(`All lights ${state ? 'turned on' : 'turned off'}.`, 'success');
                 })
                 .catch(error => {
-                    showStatus('Bir hata oluştu: ' + error, 'error');
+                    showStatus('An error occurred: ' + error, 'error');
                 });
             }
             
@@ -221,10 +221,10 @@
                 
                 if (isOn) {
                     roomElement.classList.add('light-on');
-                    statusElement.textContent = 'Işık: Açık';
+                    statusElement.textContent = 'Light: On';
                 } else {
                     roomElement.classList.remove('light-on');
-                    statusElement.textContent = 'Işık: Kapalı';
+                    statusElement.textContent = 'Light: Off';
                 }
             }
             
