@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ev Işık Simülasyonu</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .house {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            aspect-ratio: 3/2;
+        }
+        
+        .room {
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-color: #333;
+            position: relative;
+        }
+        
+        .room.light-on {
+            background-color: #f9e076;
+            color: #333;
+        }
+        
+        .room-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .light-status {
+            font-size: 14px;
+        }
+        
+        .controls {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ev Işık Simülasyonu</h1>
+        
+        <div class="house">
+            <div id="salon" class="room" data-room="salon">
+                <div class="room-name">{{ room_display_names['salon'] }}</div>
+                <div class="light-status">Işık: Kapalı</div>
+            </div>
+            <div id="mutfak" class="room" data-room="mutfak">
+                <div class="room-name">{{ room_display_names['mutfak'] }}</div>
+                <div class="light-status">Işık: Kapalı</div>
+            </div>
+            <div id="yatak_odasi" class="room" data-room="yatak_odasi">
+                <div class="room-name">{{ room_display_names['yatak_odasi'] }}</div>
+                <div class="light-status">Işık: Kapalı</div>
+            </div>
+            <div id="oturma_odasi" class="room" data-room="oturma_odasi">
+                <div class="room-name">{{ room_display_names['oturma_odasi'] }}</div>
+                <div class="light-status">Işık: Kapalı</div>
+            </div>
+            <div id="tuvalet" class="room" data-room="tuvalet">
+                <div class="room-name">{{ room_display_names['tuvalet'] }}</div>
+                <div class="light-status">Işık: Kapalı</div>
+            </div>
+            <div id="banyo" class="room" data-room="banyo">
+                <div class="room-name">{{ room_display_names['banyo'] }}</div>
+                <div class="light-status">Işık: Kapalı</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="all-on">Tüm Işıkları Aç</button>
+            <button id="all-off">Tüm Işıkları Kapat</button>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize socket.io connection
+            const socket = io();
+            
+            // Listen for light state changes from server
+            socket.on('light_state_change', function(data) {
+                console.log('Received light state change:', data);
+                updateRoomUI(data.room, data.lights);
+                showStatus(`${data.room.replace('_', ' ')} ışığı ${data.lights ? 'açıldı' : 'kapatıldı'}.`, 'success');
+            });
+            
+            // Initialize rooms based on server state
+            updateAllRooms();
+            
+            // Add click event listeners to rooms
+            document.querySelectorAll('.room').forEach(room => {
+                room.addEventListener('click', function() {
+                    const roomId = this.getAttribute('data-room');
+                    const isLightOn = this.classList.contains('light-on');
+                    toggleLight(roomId, !isLightOn);
+                });
+            });
+            
+            // All on/off buttons
+            document.getElementById('all-on').addEventListener('click', function() {
+                setAllLights(true);
+            });
+            
+            document.getElementById('all-off').addEventListener('click', function() {
+                setAllLights(false);
+            });
+            
+            // Function to toggle a single light
+            function toggleLight(room, state) {
+                fetch('/api/lights', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        room: room.replace('_', ' '),
+                        lights: state
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateRoomUI(room, state);
+                        showStatus(`${room.replace('_', ' ')} ışığı ${state ? 'açıldı' : 'kapatıldı'}.`, 'success');
+                    } else {
+                        showStatus('Hata: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    showStatus('Bir hata oluştu: ' + error, 'error');
+                });
+            }
+            
+            // Function to set all lights
+            function setAllLights(state) {
+                const rooms = ['salon', 'oturma_odasi', 'mutfak', 'tuvalet', 'banyo', 'yatak_odasi'];
+                
+                Promise.all(rooms.map(room => {
+                    return fetch('/api/lights', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            room: room.replace('_', ' '),
+                            lights: state
+                        })
+                    }).then(response => response.json());
+                }))
+                .then(() => {
+                    updateAllRooms();
+                    showStatus(`Tüm ışıklar ${state ? 'açıldı' : 'kapatıldı'}.`, 'success');
+                })
+                .catch(error => {
+                    showStatus('Bir hata oluştu: ' + error, 'error');
+                });
+            }
+            
+            // Update UI for a single room
+            function updateRoomUI(roomId, isOn) {
+                const roomElement = document.getElementById(roomId);
+                const statusElement = roomElement.querySelector('.light-status');
+                
+                if (isOn) {
+                    roomElement.classList.add('light-on');
+                    statusElement.textContent = 'Işık: Açık';
+                } else {
+                    roomElement.classList.remove('light-on');
+                    statusElement.textContent = 'Işık: Kapalı';
+                }
+            }
+            
+            // Get all room states and update UI
+            function updateAllRooms() {
+                fetch('/api/get_states')
+                    .then(response => response.json())
+                    .then(data => {
+                        Object.keys(data).forEach(room => {
+                            updateRoomUI(room, data[room]);
+                        });
+                    })
+                    .catch(error => {
+                        showStatus('Oda durumları alınamadı: ' + error, 'error');
+                    });
+            }
+            
+            // Show status message
+            function showStatus(message, type) {
+                const statusElement = document.getElementById('status');
+                statusElement.textContent = message;
+                statusElement.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
+                
+                // Clear the message after 3 seconds
+                setTimeout(() => {
+                    statusElement.textContent = '';
+                    statusElement.style.backgroundColor = 'transparent';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
