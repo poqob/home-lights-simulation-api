@@ -75,3 +75,16 @@ curl -X GET http://localhost:5004/api/get_states
 ## Real-Time Updates
 
 This application uses WebSocket (socket.io) to show changes made via the API in real-time on the web interface. Each update made via the API is automatically reflected on the web interface without the need to refresh the page.
+
+## Screenshots
+
+Here are some screenshots of the application:
+
+### Home Interface Overview
+![Home Interface Overview](res/image.png)
+
+### Living Room Light On
+![Living Room Light On](res/living-room.png)
+
+### Bedroom Light On
+![Bedroom Light On](res/bedroom.png)
