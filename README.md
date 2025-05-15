@@ -18,7 +18,7 @@ This application is a web simulation used to control the lights of rooms in a ho
 
 2. Run the application:
    ```
-   python app.py
+   python service.py
    ```
 
 3. Access from your browser at `http://localhost:5004`

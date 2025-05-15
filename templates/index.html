@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ev Işık Simülasyonu</title>
+    <title>Home Light Simulation</title>
+    <link rel="icon" href="/static/logo.png" type="image/png">
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
     <style>
         body {
@@ -238,7 +239,7 @@
                         });
                     })
                     .catch(error => {
-                        showStatus('Oda durumları alınamadı: ' + error, 'error');
+                        showStatus('Could not get room states: ' + error, 'error');
                     });
             }
             
